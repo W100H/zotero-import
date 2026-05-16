@@ -1,0 +1,20 @@
+[
+  {
+    "itemType": "journalArticle",
+    "title": "FORMAT EXAMPLE ONLY - replace with verified metadata before import",
+    "creators": [
+      {
+        "firstName": "Given",
+        "lastName": "Family"
+      }
+    ],
+    "date": "YYYY",
+    "publicationTitle": "Journal Name",
+    "DOI": "10.xxxx/example",
+    "url": "https://doi.org/10.xxxx/example",
+    "tags": [
+      "zotero-import",
+      "verified"
+    ]
+  }
+]

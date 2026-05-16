@@ -1,0 +1,28 @@
+[
+  {
+    "itemType": "journalArticle",
+    "title": "Array programming with NumPy",
+    "creators": [
+      {
+        "firstName": "Charles R.",
+        "lastName": "Harris"
+      },
+      {
+        "firstName": "K. Jarrod",
+        "lastName": "Millman"
+      },
+      {
+        "firstName": "Stéfan J.",
+        "lastName": "van der Walt"
+      }
+    ],
+    "date": "2020",
+    "publicationTitle": "Nature",
+    "DOI": "10.1038/s41586-020-2649-2",
+    "url": "https://doi.org/10.1038/s41586-020-2649-2",
+    "tags": [
+      "zotero-import",
+      "verified-example"
+    ]
+  }
+]
