@@ -7,3 +7,7 @@ htmlcov/
 .DS_Store
 *.log
 tmp/
+state/*.json
+reports/*.md
+reports/*.json
+!reports/.gitkeep

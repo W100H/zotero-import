@@ -1,0 +1,21 @@
+{
+  "timezone": "Asia/Shanghai",
+  "schedule": "Monday 08:00",
+  "journals": [
+    {
+      "name": "Science Advances",
+      "issn": "2375-2548",
+      "limit": 20,
+      "enabled": true,
+      "tags": ["journal-monitor", "Science Advances"],
+      "skip_title_keywords": [
+        "erratum",
+        "correction",
+        "corrigendum",
+        "retraction",
+        "podcast",
+        "editorial"
+      ]
+    }
+  ]
+}

@@ -19,6 +19,7 @@ KNOWN_JOURNALS = {
     "science": ("Science", "1095-9203"),
     "nature": ("Nature", "0028-0836"),
     "cell": ("Cell", "0092-8674"),
+    "science advances": ("Science Advances", "2375-2548"),
     "nature medicine": ("Nature Medicine", "1546-170X"),
     "nature reviews drug discovery": ("Nature Reviews Drug Discovery", "1474-1784"),
     "nature reviews materials": ("Nature Reviews Materials", "2058-8437"),

@@ -61,6 +61,7 @@ Use `confidence: "high"` only when a stable identifier or authoritative metadata
 | `scripts/pubmed_lookup.py` | Fetch PubMed metadata by PMID or search PubMed by topic |
 | `scripts/arxiv_lookup.py` | Fetch arXiv metadata from arXiv IDs or URLs |
 | `scripts/journal_issue.py` | Fetch recent Crossref works for common journals by name or ISSN |
+| `scripts/journal_monitor.py` | Monitor configured journals, compare DOI state, and generate Markdown/OpenClaw/JSON briefings |
 | `scripts/url_extract.py` | Extract DOI, PMID, academic URLs, title, and preview text from publisher pages and general web pages |
 | `scripts/wechat_extract.py` | Extract title, body preview, DOI, PMID, and academic URLs from WeChat HTML/pages |
 | `scripts/pdf_extract.py` | Extract text, DOI, and PMID from text-based PDFs; reports scanned/image PDFs without OCR |
@@ -84,6 +85,7 @@ Choose the route by user input:
 | Text-based PDF | Run `pdf_extract.py`, then verify extracted DOI/PMID/title |
 | Image or scanned PDF | Do not claim OCR support; ask the user for OCR text, DOI, PMID, title, or a text-based PDF |
 | Latest journal issue | Run `journal_issue.py`, then verify and list candidates |
+| Weekly journal monitoring | Run `journal_monitor.py`, review generated candidates, then wait for user confirmation before import |
 
 DOI extraction pattern:
 
@@ -125,6 +127,48 @@ For latest journal issues:
 ```bash
 python3 scripts/journal_issue.py "Nature Medicine" --limit 10
 ```
+
+For weekly journal monitoring:
+
+```bash
+python3 scripts/journal_monitor.py --config config/journals.example.json --once
+```
+
+Default monitor config uses `Science Advances` (`2375-2548`). Users can edit or copy `config/journals.example.json` to add journals. The monitor writes:
+
+- `reports/YYYY-MM-DD-journal-name.md` for a full briefing
+- `reports/YYYY-MM-DD-journal-name.openclaw.md` for compact mobile forwarding
+- `reports/YYYY-MM-DD-journal-name.json` for machine-readable candidates
+
+It stores seen DOI values in `state/journal_monitor_state.json` so the same DOI is not repeatedly reported. Use `--force-report` only when the user explicitly wants to regenerate a briefing.
+
+Linux cron example for Monday 08:00 Asia/Shanghai:
+
+```cron
+0 8 * * 1 cd /path/to/openclaw/skills/zotero-import && python3 scripts/journal_monitor.py --config config/journals.example.json --once
+```
+
+OpenClaw cron example:
+
+```bash
+openclaw cron add \
+  --name "zotero-import Science Advances monitor" \
+  --cron "0 8 * * 1" \
+  --session isolated \
+  --message "cd /path/to/openclaw/skills/zotero-import && python3 scripts/journal_monitor.py --config config/journals.example.json --once && read the newest reports/*.openclaw.md file. Send me the compact briefing. Do not import anything into Zotero until I reply with candidate IDs."
+```
+
+If the user's OpenClaw deployment supports announcement channels, configure them outside this skill and pass the `.openclaw.md` content to that channel. Email delivery may use an optional email skill, for example `email-mail-master`; QQ or WeChat delivery depends on the user's OpenClaw channel/connector setup.
+
+OpenClaw scheduling prompt example:
+
+```text
+每周一早上 08:00 运行 zotero-import 的 journal_monitor.py，
+读取 reports 里的 .openclaw.md 简洁版并发送给我。
+我回复“导入 C1 / 全部导入”之后，再导入 Zotero。
+```
+
+The monitor does not send email directly in this beta. If the user's OpenClaw environment has email, QQ, or WeChat notification skills, pass the `.openclaw.md` content to that skill. Do not import journal-monitor candidates until the user confirms the candidate IDs.
 
 For WeChat article:
 
