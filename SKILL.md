@@ -137,7 +137,7 @@ python3 scripts/journal_monitor.py --config config/journals.example.json --once
 Default monitor config uses `Science Advances` (`2375-2548`). Users can edit or copy `config/journals.example.json` to add journals. The monitor writes:
 
 - `reports/YYYY-MM-DD-journal-name.md` for a full briefing
-- `reports/YYYY-MM-DD-journal-name.openclaw.md` for compact mobile forwarding
+- `reports/YYYY-MM-DD-journal-name.terminal.md` for compact terminal review
 - `reports/YYYY-MM-DD-journal-name.json` for machine-readable candidates
 
 It stores seen DOI values in `state/journal_monitor_state.json` so the same DOI is not repeatedly reported. Use `--force-report` only when the user explicitly wants to regenerate a briefing.
@@ -155,20 +155,27 @@ openclaw cron add \
   --name "zotero-import Science Advances monitor" \
   --cron "0 8 * * 1" \
   --session isolated \
-  --message "cd /path/to/openclaw/skills/zotero-import && python3 scripts/journal_monitor.py --config config/journals.example.json --once && read the newest reports/*.openclaw.md file. Send me the compact briefing. Do not import anything into Zotero until I reply with candidate IDs."
+  --message "cd /path/to/openclaw/skills/zotero-import && python3 scripts/journal_monitor.py --config config/journals.example.json --once && show me the terminal output and the newest reports/*.terminal.md file. Do not import anything into Zotero until I reply with candidate IDs."
 ```
 
-If the user's OpenClaw deployment supports announcement channels, configure them outside this skill and pass the `.openclaw.md` content to that channel. Email delivery may use an optional email skill, for example `email-mail-master`; QQ or WeChat delivery depends on the user's OpenClaw channel/connector setup.
+If the user's OpenClaw deployment already connects to a mobile channel such as WeChat or QQ, configure announcement at the OpenClaw cron layer, not inside this skill:
+
+```bash
+openclaw cron edit <job-id> --announce --channel <your-mobile-channel> --to <your-target-id>
+```
+
+The exact channel name and target ID depend on the user's OpenClaw deployment. This skill should not ask for email, QQ, or WeChat credentials. It only prints a JSON run summary and writes local report files; OpenClaw handles mobile delivery.
 
 OpenClaw scheduling prompt example:
 
 ```text
 每周一早上 08:00 运行 zotero-import 的 journal_monitor.py，
-读取 reports 里的 .openclaw.md 简洁版并发送给我。
+把终端输出和 reports 里的 .terminal.md 简洁版展示给我。
+如果当前 OpenClaw 已连接微信或 QQ 等移动端通道，也把这份简洁版发到我的移动端。
 我回复“导入 C1 / 全部导入”之后，再导入 Zotero。
 ```
 
-The monitor does not send email directly in this beta. If the user's OpenClaw environment has email, QQ, or WeChat notification skills, pass the `.openclaw.md` content to that skill. Do not import journal-monitor candidates until the user confirms the candidate IDs.
+Do not import journal-monitor candidates until the user confirms the candidate IDs.
 
 For WeChat article:
 
@@ -204,11 +211,33 @@ If no DOI/PMID is found, perform narrative search from the article's author name
 
 ### 3. Ask For Confirmation
 
-Present candidates once, then wait:
+Present candidates in a Markdown table, then wait for confirmation. Do not use a plain bullet list for importable candidates.
 
 | ID | Title and Short Translation | Type | Why It Matters |
 |:---:|---|---|---|
 | C1 | `Original English title`<br>`(中文简译)` | Research Article | One concise method/result summary |
+
+Candidate display rules:
+
+1. Every importable candidate must have its own visible row.
+2. Do not collapse candidates into ranges such as `C11-C21` or "还有 11 篇".
+3. If there are many candidates, split the response into multiple tables, for example `C1-C10`, `C11-C20`, and `C21-C30`.
+4. Keep the same candidate IDs throughout the conversation. Do not renumber after the user replies.
+5. Include enough metadata for the user to decide: title, journal/source, date, DOI/PMID/arXiv ID, and confidence.
+6. If a candidate is not importable because it cannot be verified or lacks DOI/PMID/arXiv metadata, show it in a separate "不可导入/需补充信息" table.
+7. For failed inputs such as WeChat captcha, Cloudflare, login walls, image-only PDFs, or missing OCR, show a short table with `Input`, `Result`, and `Next step`.
+
+Recommended candidate table:
+
+| ID | Title | Journal/Source | Date | Identifier | Confidence |
+|:---:|---|---|---|---|---|
+| C1 | `Verified title` | `Journal Name` | `2026-05-17` | `DOI: 10.xxxx/example` | high |
+
+Recommended failed-input table:
+
+| Input | Result | Next step |
+|---|---|---|
+| WeChat URL | `wechat_anti_bot_challenge` | Ask for copied text, DOI, PMID, title, or PDF |
 
 Confirmation prompt:
 

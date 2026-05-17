@@ -121,7 +121,7 @@ class JournalMonitorTests(unittest.TestCase):
             )
 
             self.assertEqual(forced["results"][0]["new_count"], 1)
-            self.assertIn("openclaw", forced["results"][0]["reports"])
+            self.assertIn("terminal", forced["results"][0]["reports"])
 
     def test_report_content_is_stable(self):
         rows = journal_monitor.candidate_rows(fake_fetcher("2375-2548")["candidates"][:1])
@@ -131,7 +131,7 @@ class JournalMonitorTests(unittest.TestCase):
             [],
             "2026-05-17T00:00:00+00:00",
         )
-        compact = journal_monitor.render_openclaw_markdown(
+        compact = journal_monitor.render_terminal_markdown(
             {"name": "Science Advances", "issn": "2375-2548"},
             rows,
             "2026-05-17T00:00:00+00:00",

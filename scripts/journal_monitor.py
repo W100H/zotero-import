@@ -189,7 +189,7 @@ def render_full_markdown(journal, rows, non_importable, checked_at):
     return "\n".join(lines)
 
 
-def render_openclaw_markdown(journal, rows, checked_at):
+def render_terminal_markdown(journal, rows, checked_at):
     name = journal.get("name", "Journal")
     lines = [
         f"{name} 更新简报",
@@ -227,13 +227,13 @@ def write_json(path, payload):
     return str(output_path)
 
 
-def report_paths(reports_dir, journal_name, email_md=None, openclaw_md=None, json_output=None):
+def report_paths(reports_dir, journal_name, markdown_output=None, terminal_md=None, json_output=None):
     slug = slugify(journal_name)
     date = today_string()
     reports = Path(reports_dir)
     return {
-        "markdown": Path(email_md) if email_md else reports / f"{date}-{slug}.md",
-        "openclaw": Path(openclaw_md) if openclaw_md else reports / f"{date}-{slug}.openclaw.md",
+        "markdown": Path(markdown_output) if markdown_output else reports / f"{date}-{slug}.md",
+        "terminal": Path(terminal_md) if terminal_md else reports / f"{date}-{slug}.terminal.md",
         "json": Path(json_output) if json_output else reports / f"{date}-{slug}.json",
     }
 
@@ -243,8 +243,8 @@ def run_monitor(
     state_path=DEFAULT_STATE,
     reports_dir=DEFAULT_REPORTS_DIR,
     force_report=False,
-    email_md=None,
-    openclaw_md=None,
+    markdown_output=None,
+    terminal_md=None,
     json_output=None,
     fetcher=fetch_journal_issue,
     checked_at=None,
@@ -278,8 +278,8 @@ def run_monitor(
             overrides = report_paths(
                 reports_dir,
                 journal.get("name"),
-                email_md=email_md if single_journal else None,
-                openclaw_md=openclaw_md if single_journal else None,
+                markdown_output=markdown_output if single_journal else None,
+                terminal_md=terminal_md if single_journal else None,
                 json_output=json_output if single_journal else None,
             )
             payload = {
@@ -293,7 +293,7 @@ def run_monitor(
                 "tags": journal.get("tags", []),
             }
             paths["markdown"] = write_text(overrides["markdown"], render_full_markdown(journal, rows, non_importable, checked_at))
-            paths["openclaw"] = write_text(overrides["openclaw"], render_openclaw_markdown(journal, rows, checked_at))
+            paths["terminal"] = write_text(overrides["terminal"], render_terminal_markdown(journal, rows, checked_at))
             paths["json"] = write_json(overrides["json"], payload)
 
         merged = {normalize_doi(doi).lower(): normalize_doi(doi) for doi in seen_dois if normalize_doi(doi)}
@@ -327,8 +327,8 @@ def build_parser():
     parser.add_argument("--reports-dir", default=str(DEFAULT_REPORTS_DIR), help="Directory for generated reports.")
     parser.add_argument("--once", action="store_true", help="Run once. Included for cron/OpenClaw readability.")
     parser.add_argument("--force-report", action="store_true", help="Generate a report even when DOI values were seen before.")
-    parser.add_argument("--email-md", help="Optional Markdown output path for a single configured journal.")
-    parser.add_argument("--openclaw-md", help="Optional compact Markdown output path for a single configured journal.")
+    parser.add_argument("--markdown-output", help="Optional full Markdown output path for a single configured journal.")
+    parser.add_argument("--terminal-md", help="Optional compact terminal Markdown output path for a single configured journal.")
     parser.add_argument("--json-output", help="Optional JSON output path for a single configured journal.")
     return parser
 
@@ -342,8 +342,8 @@ def main(argv=None):
             state_path=args.state,
             reports_dir=args.reports_dir,
             force_report=args.force_report,
-            email_md=args.email_md,
-            openclaw_md=args.openclaw_md,
+            markdown_output=args.markdown_output,
+            terminal_md=args.terminal_md,
             json_output=args.json_output,
         )
     except Exception as exc:
