@@ -1,6 +1,6 @@
 {
   "timezone": "Asia/Shanghai",
-  "schedule": "Monday 08:00",
+  "schedule": "example only; set your own cron schedule outside this file",
   "journals": [
     {
       "name": "Science Advances",

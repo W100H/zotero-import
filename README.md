@@ -122,20 +122,20 @@ The journal monitor checks configured journals through Crossref and writes local
 - `reports/YYYY-MM-DD-journal-name.terminal.md`
 - `reports/YYYY-MM-DD-journal-name.json`
 
-Run the default example:
+Run the example config:
 
 ```bash
 python3 scripts/journal_monitor.py --config config/journals.example.json --once
 ```
 
-The default config monitors `Science Advances` (`2375-2548`). To monitor your own journals, copy and edit the config:
+`config/journals.example.json` is only an example. It currently uses `Science Advances` (`2375-2548`) to show the expected format. For real use, copy it and edit the journal list yourself:
 
 ```bash
 cp config/journals.example.json config/journals.local.json
 nano config/journals.local.json
 ```
 
-Example journal entry:
+Example journal entry. Replace the name, ISSN, limit, and tags with your own journal settings:
 
 ```json
 {
@@ -147,7 +147,7 @@ Example journal entry:
 }
 ```
 
-Run it:
+Run your local config:
 
 ```bash
 python3 scripts/journal_monitor.py --config config/journals.local.json --once
@@ -159,17 +159,17 @@ The monitor stores seen DOI values in `state/journal_monitor_state.json`, so rep
 
 ### Linux cron
 
-Use cron when you want a simple server-side schedule:
+Use cron when you want a simple server-side schedule. Choose your own schedule; the line below is only an example:
 
 ```cron
 0 8 * * 1 cd /path/to/openclaw/skills/zotero-import && python3 scripts/journal_monitor.py --config config/journals.local.json --once
 ```
 
-This runs every Monday at 08:00 server time.
+In this example, `0 8 * * 1` means Monday at 08:00 server time. Replace it with the schedule you want.
 
 ### OpenClaw cron
 
-If your OpenClaw installation supports `openclaw cron`, you can let OpenClaw run the monitor and show the result:
+If your OpenClaw installation supports `openclaw cron`, you can let OpenClaw run the monitor and show the result. Choose your own `--cron` schedule; the value below is only an example:
 
 ```bash
 openclaw cron add \

@@ -134,7 +134,7 @@ For weekly journal monitoring:
 python3 scripts/journal_monitor.py --config config/journals.example.json --once
 ```
 
-Default monitor config uses `Science Advances` (`2375-2548`). Users can edit or copy `config/journals.example.json` to add journals. The monitor writes:
+`config/journals.example.json` is only an example. It currently uses `Science Advances` (`2375-2548`) to show the expected format. For real use, users should copy it to their own config and set their own journal names, ISSNs, limits, and tags. The monitor writes:
 
 - `reports/YYYY-MM-DD-journal-name.md` for a full briefing
 - `reports/YYYY-MM-DD-journal-name.terminal.md` for compact terminal review
@@ -142,7 +142,7 @@ Default monitor config uses `Science Advances` (`2375-2548`). Users can edit or 
 
 It stores seen DOI values in `state/journal_monitor_state.json` so the same DOI is not repeatedly reported. Use `--force-report` only when the user explicitly wants to regenerate a briefing.
 
-Linux cron example for Monday 08:00 Asia/Shanghai:
+Linux cron example. The user must choose their own schedule; this example uses Monday 08:00 server time:
 
 ```cron
 0 8 * * 1 cd /path/to/openclaw/skills/zotero-import && python3 scripts/journal_monitor.py --config config/journals.example.json --once
@@ -158,6 +158,8 @@ openclaw cron add \
   --message "cd /path/to/openclaw/skills/zotero-import && python3 scripts/journal_monitor.py --config config/journals.example.json --once && show me the terminal output and the newest reports/*.terminal.md file. Do not import anything into Zotero until I reply with candidate IDs."
 ```
 
+The `--cron` value is an example only. Do not assume every user wants Monday 08:00.
+
 If the user's OpenClaw deployment already connects to a mobile channel such as WeChat or QQ, configure announcement at the OpenClaw cron layer, not inside this skill:
 
 ```bash
@@ -169,7 +171,7 @@ The exact channel name and target ID depend on the user's OpenClaw deployment. T
 OpenClaw scheduling prompt example:
 
 ```text
-每周一早上 08:00 运行 zotero-import 的 journal_monitor.py，
+按我指定的时间运行 zotero-import 的 journal_monitor.py，
 把终端输出和 reports 里的 .terminal.md 简洁版展示给我。
 如果当前 OpenClaw 已连接微信或 QQ 等移动端通道，也把这份简洁版发到我的移动端。
 我回复“导入 C1 / 全部导入”之后，再导入 Zotero。
