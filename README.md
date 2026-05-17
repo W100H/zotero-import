@@ -136,46 +136,12 @@ or:
 
 The skill should not write to Zotero before the user confirms.
 
-## Manual Commands
+## Notes
 
-These commands are useful for testing on a server:
+This skill does not bypass captchas, login walls, Cloudflare challenges, or OCR. If a page or PDF cannot be read directly, the agent should ask for copied text, DOI, PMID, title, or OCR text.
 
-```bash
-python3 scripts/crossref_lookup.py --doi "10.1038/s41586-020-2649-2"
-python3 scripts/pubmed_lookup.py --pmid "31452104"
-python3 scripts/arxiv_lookup.py "https://arxiv.org/abs/2401.12345"
-python3 scripts/journal_issue.py "Nature Medicine" --limit 10
-python3 scripts/url_extract.py "https://example.org/article-or-roundup" --json
-python3 scripts/pdf_extract.py "/path/to/paper.pdf"
-```
-
-Import a verified example item:
-
-```bash
-python3 scripts/zotero_api.py import \
-  --collection "zotero-import-test" \
-  --items examples/verified_real_item.json
-```
-
-This writes one verified item to Zotero. Use a temporary test collection.
-
-## Limitations
-
-- It does not solve WeChat sliders, captchas, Cloudflare challenges, login walls, or JavaScript-only pages.
-- It does not include OCR. For screenshots or scanned PDFs, provide OCR text, DOI, PMID, or title.
-- It uses scholarly metadata APIs where possible, but the user must confirm before import.
-- Live Zotero import requires your own `.env`; never commit `.env` to GitHub.
-
-## Tests
-
-Run offline tests:
-
-```bash
-python3 -m unittest discover -s tests
-```
-
-These tests do not call Zotero, Crossref, PubMed, or arXiv.
+Keep your `.env` private and never commit Zotero API keys to GitHub.
 
 ## License
 
-MIT
+MIT.
