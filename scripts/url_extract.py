@@ -84,6 +84,13 @@ def classify_url(url):
     return "general_web_page"
 
 
+def extract_doi_from_url(url):
+    match = re.search(r"(?:doi\.org/|/doi/)(10\.\d{4,}/[^\s\"'<>?#]+)", url, re.I)
+    if not match:
+        return ""
+    return match.group(1).rstrip(".,;:()[]")
+
+
 def detect_anti_bot_challenge(html):
     if not html:
         return False
@@ -276,6 +283,28 @@ def main():
         url = "stdin://page"
     elif len(sys.argv) >= 2 and not sys.argv[1].startswith("--"):
         url = sys.argv[1]
+        doi = extract_doi_from_url(url)
+        if doi:
+            result = {
+                "ok": True,
+                "source": "web",
+                "query": url,
+                "url": url,
+                "url_type": classify_url(url),
+                "title": "",
+                "text_length": 0,
+                "body_preview": "",
+                "dois_found": [doi],
+                "pmids_found": [],
+                "urls_found": [url],
+                "has_doi": True,
+                "has_pmid": False,
+                "has_multiple_candidates": False,
+                "candidates": [make_candidate(source="web", doi=doi, url=f"https://doi.org/{doi}", confidence="high")],
+                "note": "DOI was extracted from the URL without fetching the protected page.",
+            }
+            print(json.dumps(result, ensure_ascii=False, indent=2) if use_json else result)
+            return
         fetched = fetch_url(url)
         html = fetched.get("html", "")
         if not fetched["ok"] and not html:

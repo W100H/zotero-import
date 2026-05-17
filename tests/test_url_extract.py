@@ -68,6 +68,12 @@ class UrlExtractTests(unittest.TestCase):
             "general_web_page",
         )
 
+    def test_extracts_doi_from_science_org_doi_url_without_fetching_page(self):
+        self.assertEqual(
+            url_extract.extract_doi_from_url("https://www.science.org/doi/10.1126/sciadv.aee4401"),
+            "10.1126/sciadv.aee4401",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

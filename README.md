@@ -91,7 +91,8 @@ export ZOTERO_COLLECTION="New Imports"
 Validate the connection:
 
 ```bash
-. ./.env
+# Use an absolute path on minimal /bin/sh environments.
+. /path/to/openclaw/skills/zotero-import/scripts/load_env.sh
 python3 scripts/zotero_api.py validate
 ```
 
@@ -139,6 +140,10 @@ The skill should not write to Zotero before the user confirms.
 ## Notes
 
 This skill does not bypass captchas, login walls, Cloudflare challenges, or OCR. If a page or PDF cannot be read directly, the agent should ask for copied text, DOI, PMID, title, or OCR text.
+
+On cloud servers, WeChat public account pages often return slider/captcha pages. In that case, provide copied article text, DOI, PMID, title, or a PDF instead.
+
+For publisher DOI pages protected by Cloudflare, such as some Science.org URLs, provide the DOI or DOI URL. The skill will verify metadata through Crossref instead of scraping the protected page.
 
 Keep your `.env` private and never commit Zotero API keys to GitHub.
 

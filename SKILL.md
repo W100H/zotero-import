@@ -34,7 +34,7 @@ Use `.env.example` as the template:
 
 ```bash
 cp .env.example .env
-. ./.env
+. /absolute/path/to/zotero-import/scripts/load_env.sh
 python3 scripts/zotero_api.py validate
 ```
 
@@ -74,13 +74,13 @@ Choose the route by user input:
 
 | Input | Route |
 |---|---|
-| `10.xxxx/...` or `https://doi.org/...` | Normalize DOI, then verify with Crossref |
+| `10.xxxx/...`, DOI URL, or publisher `/doi/10.xxxx/...` URL | Normalize DOI, then verify with Crossref |
 | PubMed URL or PMID | Run `pubmed_lookup.py --pmid`, then verify candidate metadata |
 | arXiv URL | Run `arxiv_lookup.py`, then verify preprint metadata |
 | Publisher URL | Run `url_extract.py`, then verify extracted DOI/PMID/title with Crossref/PubMed |
 | General article/blog/news URL | Run `url_extract.py`; if multiple candidates are found, verify and list each candidate |
 | Paper title | Search Crossref and compare top candidates |
-| WeChat article | Run `wechat_extract.py`, then verify extracted DOI/PMID/URLs |
+| WeChat article | Run `wechat_extract.py`; on cloud-server captcha, stop and ask for copied text, DOI, PMID, title, or PDF |
 | Text-based PDF | Run `pdf_extract.py`, then verify extracted DOI/PMID/title |
 | Image or scanned PDF | Do not claim OCR support; ask the user for OCR text, DOI, PMID, title, or a text-based PDF |
 | Latest journal issue | Run `journal_issue.py`, then verify and list candidates |
@@ -134,6 +134,8 @@ python3 scripts/wechat_extract.py "https://mp.weixin.qq.com/..." --json
 
 If WeChat returns `wechat_anti_bot_challenge`, stop scraping. Tell the user the page triggered a slider/captcha that cannot be solved from the headless Linux server, then ask for article text, DOI, PMID, title, or PDF.
 
+On Alibaba Cloud ECS and similar cloud IP ranges, WeChat pages commonly trigger this challenge even for different public accounts. Do not retry repeatedly or parse the captcha page as article content.
+
 For publisher pages, news posts, blogs, and other pages that introduce one or more papers:
 
 ```bash
@@ -143,6 +145,8 @@ python3 scripts/url_extract.py "https://example.org/article-or-roundup" --json
 If `dois_found`, `pmids_found`, or `urls_found` contains multiple entries, treat them as separate candidates. Verify each candidate before showing the confirmation table. Do not import every extracted identifier automatically.
 
 If `url_extract.py` returns `web_anti_bot_challenge`, stop scraping and ask the user for copied text, DOI, PMID, title, PDF, or another accessible source.
+
+For protected publisher DOI URLs, especially Science.org `/doi/10...` pages, extract the DOI from the URL and use `crossref_lookup.py --doi` instead of scraping the HTML page.
 
 For PDF:
 
@@ -224,6 +228,7 @@ If any item failed, list title, DOI, and API error.
 | WeChat extraction returns no DOI | Use narrative search; do not import unverifiable items |
 | WeChat returns captcha/slider | Stop scraping and ask for copied text, DOI, PMID, title, or PDF |
 | General webpage returns anti-bot challenge | Stop scraping and ask for copied text, DOI, PMID, title, PDF, or another accessible source |
+| Science.org or publisher DOI URL returns Cloudflare | Extract DOI from URL and verify through Crossref |
 | One webpage contains multiple DOI/PMID values | Verify each as a separate candidate, then ask which IDs to import |
 | General webpage has no DOI/PMID | Use title/key phrase narrative search; mark as not importable if no high-confidence match |
 | Image input | Ask for OCR text or the visible title/DOI; the Linux skill cannot read image text by itself |
